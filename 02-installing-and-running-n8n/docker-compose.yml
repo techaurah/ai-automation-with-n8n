@@ -1,0 +1,19 @@
+# Lesson 02: the course baseline n8n stack.
+# Run: docker compose up -d   then open http://localhost:5678
+# Data persists in the n8n_data volume. Delete the volume and you
+# delete every workflow and credential: treat it like a database.
+services:
+  n8n:
+    image: n8nio/n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - GENERIC_TIMEZONE=Europe/London
+      - TZ=Europe/London
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:
