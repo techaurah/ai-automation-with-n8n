@@ -1,0 +1,118 @@
+{
+  "name": "Lesson 16 - Form to CRM with dedupe",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Enquiry form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "path": "crm-intake",
+        "formTitle": "BrightSmile enquiry",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Message",
+              "requiredField": false
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Normalise and key",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const d = $input.first().json;\nconst name = (d.Name || '').trim();\nconst email = (d.Email || '').trim().toLowerCase();\n// The dedupe key in production is computed with the Crypto node\n// or a hash in this node; here the twin defines the contract:\n// sha256(name|email), first 16 chars, computed identically\n// on every intake path.\nconst crypto = require('crypto');\nconst key = crypto.createHash('sha256')\n  .update(name.toLowerCase() + '|' + email).digest('hex').slice(0, 16);\nreturn [{ json: { name: name, email: email, message: d.Message || '', dedupe_key: key } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Create lead in CRM table",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "operation": "create",
+        "base": "SELECT_YOUR_BASE",
+        "table": "SELECT_YOUR_TABLE",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.name }}",
+            "Email": "={{ $json.email }}",
+            "Message": "={{ $json.message }}",
+            "DedupeKey": "={{ $json.dedupe_key }}"
+          }
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000900",
+      "name": "Sticky Note 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        90
+      ],
+      "parameters": {
+        "content": "## The missing half, on purpose\nChecking the key against existing records before creating is Lesson 19's job; this lesson computes and stores the key so that check has something to bite on.",
+        "height": 180,
+        "width": 420,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Enquiry form": {
+      "main": [
+        [
+          {
+            "node": "Normalise and key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise and key": {
+      "main": [
+        [
+          {
+            "node": "Create lead in CRM table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
