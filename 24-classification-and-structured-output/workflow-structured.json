@@ -1,0 +1,130 @@
+{
+  "name": "Lesson 24 - Structured output (chain and parser)",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Start (run manually)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "A ticket",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: { message: 'How much is whitening?' } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Classify with a chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Classify the patient message into exactly one label: booking, pricing, complaint, other. Return only the structured output."
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Ollama Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "model": "llama3.1",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"label\": { \"type\": \"string\", \"enum\": [\"booking\", \"pricing\", \"complaint\", \"other\"] },\n    \"confidence\": { \"type\": \"number\" }\n  },\n  \"required\": [\"label\", \"confidence\"]\n}"
+      }
+    }
+  ],
+  "connections": {
+    "Start (run manually)": {
+      "main": [
+        [
+          {
+            "node": "A ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A ticket": {
+      "main": [
+        [
+          {
+            "node": "Classify with a chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify with a chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify with a chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
