@@ -1,0 +1,112 @@
+{
+  "name": "Lesson 07 - Edit Fields vs Code node",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Start (run manually)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Sample enquiry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: { name: '  ayesha KHAN ', channel: ' Website Form ', message: 'Tooth pain since Monday, getting worse' } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Clean with Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0",
+              "name": "name",
+              "value": "={{ $json.name.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "a1",
+              "name": "channel",
+              "value": "={{ $json.channel.trim().toLowerCase() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Enrich with Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// The jobs Edit Fields does badly: derived logic and text work.\nconst d = $input.first().json;\nconst urgent = /(pain|emergency|broken)/i.test(d.message);\nreturn [{ json: { ...d, first_name: d.name.split(' ')[0], urgent: urgent, summary: d.message.slice(0, 40).trim() + '...' } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Start (run manually)": {
+      "main": [
+        [
+          {
+            "node": "Sample enquiry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample enquiry": {
+      "main": [
+        [
+          {
+            "node": "Clean with Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean with Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Enrich with Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
