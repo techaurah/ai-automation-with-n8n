@@ -1,0 +1,209 @@
+{
+  "name": "Lesson 15 - Notification ladder",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Start (run manually)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Sample alerts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [\n  { json: { severity: 'low', text: 'Daily digest is ready' } },\n  { json: { severity: 'high', text: 'Intake workflow failed 3 times' } },\n  { json: { severity: 'critical', text: 'Payments webhook returning 500' } } ];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Needs a human now?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.severity }}",
+              "rightValue": "low",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Email the owner",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "operation": "send",
+        "subject": "={{ '[' + $json.severity.toUpperCase() + '] ' + $json.text }}",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "name": "Is critical?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.severity }}",
+              "rightValue": "critical",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "name": "Post to team chat",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1340,
+        320
+      ],
+      "parameters": {
+        "operation": "post",
+        "channel": "SELECT_YOUR_CHANNEL",
+        "text": "={{ ':rotating_light: ' + $json.text }}",
+        "otherOptions": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000007",
+      "name": "File the low ones",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return $input.all().map(i => ({ json: { ...i.json, filed: 'digest', sent: false } }));"
+      }
+    }
+  ],
+  "connections": {
+    "Start (run manually)": {
+      "main": [
+        [
+          {
+            "node": "Sample alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample alerts": {
+      "main": [
+        [
+          {
+            "node": "Needs a human now?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs a human now?": {
+      "main": [
+        [
+          {
+            "node": "Email the owner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "File the low ones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email the owner": {
+      "main": [
+        [
+          {
+            "node": "Is critical?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is critical?": {
+      "main": [
+        [
+          {
+            "node": "Post to team chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
