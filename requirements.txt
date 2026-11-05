@@ -1,0 +1,15 @@
+# AI Automation with n8n: requirements
+#
+# This file is intentionally comment-only.
+#
+# The course's Python twins, checkers, and smoke tests run on the
+# Python 3.11+ standard library alone, so a fresh clone verifies
+# before any package decision is made.
+#
+# The other half of the course, n8n itself, is not a Python package:
+# Lesson 02 installs it with Docker (recommended) or an n8n Cloud
+# account. The AI module's local path uses Ollama, installed from
+# ollama.com, also covered in Lesson 02 and Lesson 20.
+#
+# There are no optional pip extras for this course. If a future
+# lesson adds one, it will be pinned in that lesson, not here.

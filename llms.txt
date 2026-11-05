@@ -1,0 +1,70 @@
+# AI Automation with n8n
+
+> AI Automation with n8n is a free, complete course that teaches you to design, build, debug, and run n8n workflows that do real work, from a first two-node workflow to an AI agent with tools and memory and a production instance you can defend. By TechAurah (TechAura), under the TechAurah Academy name.
+
+Key facts:
+- License: MIT. Price: free. No sign-up, no certificate; the completion artifact is a public capstone project indexed in the course showcase.
+- Format: 35 numbered lessons (00 to 34) in 8 modules, each with a written lesson, an importable workflow JSON validated in CI, a Python twin or checker where the logic is testable offline, one exercise, and a worked solution.
+- Stack: n8n 2.x (self-hosted Community Edition in Docker is the main path; n8n Cloud works with noted differences), Python 3.11+ standard library for twins, Ollama for local AI models.
+- Zero-credential rule: every lesson runs on the free self-hosted edition with simulated steps or local models. Paid options are flagged at the top of a lesson, never midway.
+- Audience: operators, founders, agency teams, and developers who can read JSON and a little JavaScript or Python.
+- Capstone: the Lead Machine for a fictional dental clinic: intake, qualification, follow-up, and a daily digest, with idempotency, error handling, approvals, and a shipping gate.
+
+## Module 0: Start here
+
+- [00 Course setup: environment, accounts, free paths, how to use this repo](https://github.com/techaurah/ai-automation-with-n8n/tree/main/00-course-setup)
+- [01 What automation is, and where n8n fits](https://github.com/techaurah/ai-automation-with-n8n/tree/main/01-what-automation-is-and-where-n8n-fits)
+
+## Module 1: n8n foundations
+
+- [02 Installing and running n8n](https://github.com/techaurah/ai-automation-with-n8n/tree/main/02-installing-and-running-n8n)
+- [03 The editor and your first workflow](https://github.com/techaurah/ai-automation-with-n8n/tree/main/03-the-editor-and-your-first-workflow)
+- [04 How data flows: items, JSON, and paired items](https://github.com/techaurah/ai-automation-with-n8n/tree/main/04-how-data-flows-items-and-json)
+- [05 Expressions and mapping](https://github.com/techaurah/ai-automation-with-n8n/tree/main/05-expressions-and-mapping)
+- [06 Triggers: schedules, webhooks, and forms](https://github.com/techaurah/ai-automation-with-n8n/tree/main/06-triggers-schedules-webhooks-forms)
+
+## Module 2: Core nodes in depth
+
+- [07 Edit Fields and the Code node](https://github.com/techaurah/ai-automation-with-n8n/tree/main/07-edit-fields-and-the-code-node)
+- [08 Conditional logic: IF, Switch, Merge, Filter](https://github.com/techaurah/ai-automation-with-n8n/tree/main/08-conditional-logic-if-switch-merge)
+- [09 Loops, batches, and pagination](https://github.com/techaurah/ai-automation-with-n8n/tree/main/09-loops-batches-and-pagination)
+- [10 HTTP Request and APIs](https://github.com/techaurah/ai-automation-with-n8n/tree/main/10-http-request-and-apis)
+- [11 Files and binary data](https://github.com/techaurah/ai-automation-with-n8n/tree/main/11-files-and-binary-data)
+- [12 Data Tables and state that lasts](https://github.com/techaurah/ai-automation-with-n8n/tree/main/12-data-tables-and-state)
+
+## Module 3: Connecting real services
+
+- [13 Credentials and secrets done right](https://github.com/techaurah/ai-automation-with-n8n/tree/main/13-credentials-and-secrets)
+- [14 Spreadsheets and databases](https://github.com/techaurah/ai-automation-with-n8n/tree/main/14-spreadsheets-and-databases)
+- [15 Email, messaging, and notifications](https://github.com/techaurah/ai-automation-with-n8n/tree/main/15-email-messaging-and-notifications)
+- [16 Forms, CRMs, and business apps](https://github.com/techaurah/ai-automation-with-n8n/tree/main/16-forms-crm-and-business-apps)
+
+## Module 4: Reliability
+
+- [17 Error workflows and retries](https://github.com/techaurah/ai-automation-with-n8n/tree/main/17-error-workflows-and-retries)
+- [18 Debugging: executions, pinning, and logs](https://github.com/techaurah/ai-automation-with-n8n/tree/main/18-debugging-and-execution-history)
+- [19 Idempotency, deduplication, and safe reruns](https://github.com/techaurah/ai-automation-with-n8n/tree/main/19-idempotency-dedup-and-safe-reruns)
+
+## Module 5: AI in n8n
+
+- [20 AI in n8n: the map](https://github.com/techaurah/ai-automation-with-n8n/tree/main/20-ai-in-n8n-the-map)
+- [21 Your first AI agent](https://github.com/techaurah/ai-automation-with-n8n/tree/main/21-your-first-ai-agent)
+- [22 AI tools and workflow tools](https://github.com/techaurah/ai-automation-with-n8n/tree/main/22-ai-tools-and-workflow-tools)
+- [23 Memory and conversations](https://github.com/techaurah/ai-automation-with-n8n/tree/main/23-memory-and-conversations)
+- [24 Classification and structured output](https://github.com/techaurah/ai-automation-with-n8n/tree/main/24-classification-and-structured-output)
+- [25 RAG in n8n](https://github.com/techaurah/ai-automation-with-n8n/tree/main/25-rag-in-n8n)
+- [26 MCP in both directions](https://github.com/techaurah/ai-automation-with-n8n/tree/main/26-mcp-in-both-directions)
+- [27 Human-in-the-loop and guardrails](https://github.com/techaurah/ai-automation-with-n8n/tree/main/27-human-in-the-loop-and-guardrails)
+
+## Module 6: Production
+
+- [28 Saving, publishing, and versioning](https://github.com/techaurah/ai-automation-with-n8n/tree/main/28-saving-publishing-and-versioning)
+- [29 Self-hosting in production](https://github.com/techaurah/ai-automation-with-n8n/tree/main/29-self-hosting-in-production)
+- [30 Security hardening](https://github.com/techaurah/ai-automation-with-n8n/tree/main/30-security-hardening)
+- [31 Monitoring, cost, and scaling](https://github.com/techaurah/ai-automation-with-n8n/tree/main/31-monitoring-cost-and-scaling)
+
+## Module 7: Capstone
+
+- [32 Capstone spec and scaffolding: the Lead Machine](https://github.com/techaurah/ai-automation-with-n8n/tree/main/32-capstone-spec-and-scaffolding)
+- [33 Build the Lead Machine](https://github.com/techaurah/ai-automation-with-n8n/tree/main/33-build-the-lead-machine)
+- [34 Ship it: publish, document, showcase](https://github.com/techaurah/ai-automation-with-n8n/tree/main/34-ship-it)
