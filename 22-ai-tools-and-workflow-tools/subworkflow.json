@@ -1,0 +1,49 @@
+{
+  "name": "Lesson 22 - Sub-workflow: price lookup",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Workflow input trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Look up the price",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const t = ($input.first().json.treatment || '').toLowerCase();\nconst prices = { whitening: 299, checkup: 45, hygiene: 65 };\nreturn [{ json: { treatment: t, price: prices[t] !== undefined ? prices[t] : null } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Workflow input trigger": {
+      "main": [
+        [
+          {
+            "node": "Look up the price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
