@@ -1,0 +1,42 @@
+# Lesson 29: a production-shaped n8n stack.
+# Copy .env.example to .env and set real values before first run.
+# Start: docker compose up -d    Editor: https://n8n.example.com
+# (put a reverse proxy with TLS in front for a real deployment;
+#  the proxy itself is your platform's choice and is covered in the
+#  lesson text rather than frozen into this file.)
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  n8n:
+    image: n8nio/n8n:2.42.7
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=db
+      - DB_POSTGRESDB_DATABASE=${DB_NAME}
+      - DB_POSTGRESDB_USER=${DB_USER}
+      - DB_POSTGRESDB_PASSWORD=${DB_PASSWORD}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-Europe/London}
+      - TZ=${GENERIC_TIMEZONE:-Europe/London}
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=336
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  db_data:
+  n8n_data:
