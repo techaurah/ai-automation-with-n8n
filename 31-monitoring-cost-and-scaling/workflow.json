@@ -1,0 +1,106 @@
+{
+  "name": "Lesson 31 - Daily operations digest (skeleton)",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Daily 07:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 7 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Read recent executions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "url": "http://localhost:5678/api/v1/executions?limit=100",
+        "method": "GET",
+        "options": {},
+        "authentication": "genericAuth",
+        "genericAuth": {
+          "type": "httpHeaderAuth",
+          "properties": {
+            "name": "X-N8N-API-KEY",
+            "value": "SELECT_AN_API_KEY_CREDENTIAL"
+          }
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Summarise for the digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const data = $input.first().json.data || [];\nconst byStatus = {};\nfor (const e of data) { byStatus[e.status] = (byStatus[e.status] || 0) + 1; }\nreturn [{ json: { executions: data.length, byStatus: byStatus, note: 'Wire this into the Lesson 15 ladder: errors page the owner, the digest itself files as low.' } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000900",
+      "name": "Sticky Note 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        90
+      ],
+      "parameters": {
+        "content": "## Honest skeleton\nThe n8n public API needs an API key credential (instance settings) and returns execution records; the summary shape is the lesson. Adapt the endpoint to your instance URL.",
+        "height": 180,
+        "width": 420,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Daily 07:30": {
+      "main": [
+        [
+          {
+            "node": "Read recent executions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read recent executions": {
+      "main": [
+        [
+          {
+            "node": "Summarise for the digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
