@@ -1,0 +1,87 @@
+{
+  "name": "Lesson 01 - Hello, automation",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Start (run manually)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Shape the greeting",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0",
+              "name": "clinic",
+              "value": "BrightSmile Dental",
+              "type": "string"
+            },
+            {
+              "id": "a1",
+              "name": "channel",
+              "value": "website form",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Write the greeting",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const c = $input.first().json;\nreturn [{ json: { message: 'New enquiry at ' + c.clinic + ' via ' + c.channel + ': draft a reply, log the lead.' } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Start (run manually)": {
+      "main": [
+        [
+          {
+            "node": "Shape the greeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape the greeting": {
+      "main": [
+        [
+          {
+            "node": "Write the greeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
