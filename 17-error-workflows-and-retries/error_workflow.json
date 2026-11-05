@@ -1,0 +1,88 @@
+{
+  "name": "Lesson 17 - Global error workflow",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Build the alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const e = $input.first().json;\nconst wf = (e.workflow && e.workflow.name) || 'unknown workflow';\nconst node = (e.execution && e.execution.lastNodeExecuted) || 'unknown node';\nconst msg = (e.execution && e.execution.error && e.execution.error.message) || 'no message';\nreturn [{ json: { subject: 'FAILED: ' + wf, body: 'Node: ' + node + '\\nError: ' + msg + '\\nExecution: ' + (e.execution && e.execution.id) + '\\nFirst move: check whether the record was written before the failure.' } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Send point (wire Lesson 15 here)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// In production this node is your Gmail or Slack node from\n// Lesson 15, fed by the alert fields above. It is a Code node\n// here so the error workflow imports with zero credentials.\nreturn $input.all();"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000900",
+      "name": "Sticky Note 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        90
+      ],
+      "parameters": {
+        "content": "## Setup\nSave this workflow, then in every important workflow: Settings, Error Workflow, choose this one. One error workflow can serve the whole instance.",
+        "height": 180,
+        "width": 420,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build the alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build the alert": {
+      "main": [
+        [
+          {
+            "node": "Send point (wire Lesson 15 here)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
