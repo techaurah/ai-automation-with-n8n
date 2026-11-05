@@ -1,0 +1,5 @@
+# Lesson 24: Solution notes
+
+Expect the rule classifier to win on the plain tickets and lose on the ambiguous and the sarcastic; expect the model to invert that pattern, with its errors concentrated where categories genuinely overlap (a complaint that is also a booking change is the classic). The tuning that usually pays is not threshold fiddling but a sharper complaint description that claims urgency and dissatisfaction explicitly, letting booking keep its reschedule cases. The threshold lands where the cost asymmetry says: a missed complaint costs far more than a reviewed parking question, so complaint recall is bought with a lower bar for escalating anything complaint-adjacent.
+
+**What to notice.** You have built a tiny evaluation practice around one node: labelled data, a confusion table, a targeted change, a measured threshold. That practice, scaled, is how AI automations stay good after launch, and it is the same loop as Course 1's evaluation module, because there is only one loop.
