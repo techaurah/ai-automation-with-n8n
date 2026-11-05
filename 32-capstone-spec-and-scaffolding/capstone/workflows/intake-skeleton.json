@@ -1,0 +1,77 @@
+{
+  "name": "Capstone skeleton - Intake",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Webhook (enquiry)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "path": "lead-machine-intake",
+        "httpMethod": "POST",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Normalise (Lesson 33 completes me)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// TODO in Lesson 33: house shape from Lesson 06, then the\n// dedupe key from the data model, then classification.\nconst b = $input.first().json.body || $input.first().json;\nreturn [{ json: { name: b.name || '', email: b.email || '', message: b.message || '' } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Webhook (enquiry)": {
+      "main": [
+        [
+          {
+            "node": "Normalise (Lesson 33 completes me)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise (Lesson 33 completes me)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
