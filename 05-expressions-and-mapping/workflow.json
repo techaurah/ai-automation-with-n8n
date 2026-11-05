@@ -1,0 +1,124 @@
+{
+  "name": "Lesson 05 - Expressions and mapping",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Start (run manually)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Sample orders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [\n  { json: { first: 'Ayesha', last: 'Khan', price: 299, qty: 1, member: true } },\n  { json: { first: 'Tom', last: 'Lee', price: 45, qty: 3, member: false } } ];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Map with expressions",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0",
+              "name": "customer",
+              "value": "={{ $json.first }} {{ $json.last }}",
+              "type": "string"
+            },
+            {
+              "id": "a1",
+              "name": "total",
+              "value": "={{ $json.price * $json.qty }}",
+              "type": "number"
+            },
+            {
+              "id": "a2",
+              "name": "discount",
+              "value": "={{ $json.member ? Math.round($json.price * $json.qty * 0.1 * 100) / 100 : 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "a3",
+              "name": "label",
+              "value": "={{ $json.member ? 'member' : 'standard' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Add amount due",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Expressions cannot easily reference fields created in the\n// same Edit Fields node, so 'due' is computed here instead.\nreturn $input.all().map(i => ({ json: { ...i.json, due: Math.round((i.json.total - i.json.discount) * 100) / 100 } }));"
+      }
+    }
+  ],
+  "connections": {
+    "Start (run manually)": {
+      "main": [
+        [
+          {
+            "node": "Sample orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample orders": {
+      "main": [
+        [
+          {
+            "node": "Map with expressions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map with expressions": {
+      "main": [
+        [
+          {
+            "node": "Add amount due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
