@@ -1,0 +1,261 @@
+{
+  "name": "Lesson 19 - Idempotent webhook intake",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Webhook (lead event)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "path": "lead-event",
+        "httpMethod": "POST",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Compute the key",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const b = $input.first().json.body || $input.first().json;\nconst crypto = require('crypto');\nconst key = crypto.createHash('sha256')\n  .update((b.email || '').trim().toLowerCase() + '|' + (b.message_id || '')).digest('hex').slice(0, 16);\nreturn [{ json: { dedupe_key: key, email: (b.email || '').trim().toLowerCase(), name: b.name || '' } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Look up the key",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": "SELECT_YOUR_DELIVERIES_TABLE",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "dedupe_key",
+              "keyValue": "={{ $json.dedupe_key }}"
+            }
+          ]
+        },
+        "options": {
+          "alwaysOutputData": true
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Already seen?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.dedupe_key }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "name": "Answer the duplicate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: { status: 'duplicate, already processed', handled: true } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "name": "Register the delivery",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        320
+      ],
+      "parameters": {
+        "operation": "insert",
+        "dataTableId": "SELECT_YOUR_DELIVERIES_TABLE",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "dedupe_key": "={{ $json.dedupe_key }}",
+            "email": "={{ $json.email }}"
+          }
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000007",
+      "name": "Do the side effect once",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Send the welcome, create the CRM record, charge the card:\n// the side effect lives here, behind the register check,\n// so replays never reach it.\nreturn [{ json: { status: 'created', handled: true } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000008",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        320
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000900",
+      "name": "Sticky Note 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        90
+      ],
+      "parameters": {
+        "content": "## Setup\nCreate a Data Table named Deliveries with text columns dedupe_key and email, and select it in both Data Table nodes. The branch logic is the lesson: side effects only happen on the unseen path.",
+        "height": 180,
+        "width": 420,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Webhook (lead event)": {
+      "main": [
+        [
+          {
+            "node": "Compute the key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute the key": {
+      "main": [
+        [
+          {
+            "node": "Look up the key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look up the key": {
+      "main": [
+        [
+          {
+            "node": "Already seen?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already seen?": {
+      "main": [
+        [
+          {
+            "node": "Answer the duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Register the delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register the delivery": {
+      "main": [
+        [
+          {
+            "node": "Do the side effect once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer the duplicate": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Do the side effect once": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
