@@ -1,0 +1,5 @@
+# Lesson 25: Solution notes
+
+The refunds document is the classic near-miss distractor: it shares the question's keyword, so weak retrieval surfaces it, and only an answer step disciplined about *which fact answers the question* stays correct. In the twin, ranking by overlap can promote it for some phrasings, which is a genuine finding about counting-based retrieval, not a bug in your exercise; in the embeddings workflow it usually ranks below the prices chunk, and the citation exposes the truth either way, which is why citations are non-negotiable. The embeddings mismatch experiment deserves its stark result: retrieval does not degrade gracefully, it returns confident irrelevance, and nothing errors. Guard it procedurally: the model name lives in exactly two workflows, changed together, with a reload between.
+
+**What to notice.** Every failure in this lesson was silent and plausible. RAG systems do not break loudly; they answer wrongly with citations to the wrong document. The question-pair set is not homework; it is the only instrument that sees it.
