@@ -1,0 +1,97 @@
+{
+  "name": "Lesson 12 - Data Tables (insert sample leads)",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Start (run manually)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Sample leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [\n  { json: { name: 'Ayesha Khan', email: 'ayesha@example.com', status: 'new', updated: '2026-11-01' } },\n  { json: { name: 'Tom Lee', email: 'tom@example.com', status: 'contacted', updated: '2026-10-20' } },\n  { json: { name: 'Maria Gomez', email: 'maria@example.com', status: 'new', updated: '2026-11-03' } } ];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Insert leads",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "operation": "insert",
+        "dataTableId": "SELECT_YOUR_LEADS_TABLE",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "status": "={{ $json.status }}",
+            "updated": "={{ $json.updated }}"
+          }
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000900",
+      "name": "Sticky Note 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        90
+      ],
+      "parameters": {
+        "content": "## Before you run\nCreate a Data Table named Leads with text columns name, email, status, updated (id, createdAt and updatedAt are added for you), then select it in the Data Table node. The shipped JSON holds a placeholder on purpose.",
+        "height": 180,
+        "width": 420,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Start (run manually)": {
+      "main": [
+        [
+          {
+            "node": "Sample leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample leads": {
+      "main": [
+        [
+          {
+            "node": "Insert leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
