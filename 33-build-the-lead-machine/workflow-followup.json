@@ -1,0 +1,161 @@
+{
+  "name": "Lead Machine 02 - Follow-up chaser",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Daily 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Get contacted leads",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": "SELECT_YOUR_LEADS_TABLE",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "keyValue": "contacted"
+            }
+          ]
+        },
+        "options": {
+          "alwaysOutputData": true
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Pick the due and the done",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// The bounded chaser: contacted leads updated over 3 days ago\n// are due chase 1; chased_1 over 5 days, chase 2; chased_2\n// rests. closed never appears here (its status is not\n// contacted or chased_1), which is the sticky rule working.\nconst cutoff1 = new Date(Date.now() - 3 * 864e5).toISOString().slice(0, 10);\nconst cutoff2 = new Date(Date.now() - 5 * 864e5).toISOString().slice(0, 10);\nreturn $input.all().filter(i => i.json.email).map(i => {\n  const d = i.json;\n  const chase = d.updated <= cutoff1 ? 1 : 0;\n  return { json: { ...d, due: chase > 0, next_status: 'chased_' + chase } };\n}).filter(i => i.json.due);"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Draft the chase",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return $input.all().map(i => ({ json: { ...i.json, draft: 'Hi ' + i.json.name.split(' ')[0] + ', just following up on your enquiry. We still have slots this week if you would like one. No pressure either way.' } }));"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "name": "Draft the reply (Gmail draft)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "operation": "draft",
+        "subject": "={{ 'Re: your enquiry, ' + $json.name }}",
+        "emailType": "text",
+        "message": "={{ $json.draft }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000900",
+      "name": "Sticky Note 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        90
+      ],
+      "parameters": {
+        "content": "## Draft mode, deliberately\nThe chaser creates drafts for human approval (Lesson 27) until the clinic graduates it with evidence. Status updates to chased_N happen after the approved send, in the production wiring described in the lesson.",
+        "height": 180,
+        "width": 420,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Daily 09:00": {
+      "main": [
+        [
+          {
+            "node": "Get contacted leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get contacted leads": {
+      "main": [
+        [
+          {
+            "node": "Pick the due and the done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick the due and the done": {
+      "main": [
+        [
+          {
+            "node": "Draft the chase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft the chase": {
+      "main": [
+        [
+          {
+            "node": "Draft the reply (Gmail draft)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

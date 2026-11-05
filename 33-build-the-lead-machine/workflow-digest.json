@@ -1,0 +1,117 @@
+{
+  "name": "Lead Machine 03 - Daily digest",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Daily 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Get new leads",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": "SELECT_YOUR_LEADS_TABLE",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "keyValue": "new"
+            }
+          ]
+        },
+        "options": {
+          "alwaysOutputData": true
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Compose the digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const leads = $input.all().filter(i => i.json.email);\nconst hot = leads.filter(l => l.band === 'hot');\nreturn [{ json: { subject: 'Lead Machine: ' + leads.length + ' new leads, ' + hot.length + ' hot', body: leads.map(l => l.band.toUpperCase() + ' ' + l.name + ' (' + l.category + ', score ' + l.score + ')').join('\\n') || 'No new leads. A quiet day is also a report.' } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Deliver on the low rung",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Lesson 15: the digest files as low. In production this is\n// the owner's digest channel; it never pages anyone.\nreturn $input.all();"
+      }
+    }
+  ],
+  "connections": {
+    "Daily 08:00": {
+      "main": [
+        [
+          {
+            "node": "Get new leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get new leads": {
+      "main": [
+        [
+          {
+            "node": "Compose the digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose the digest": {
+      "main": [
+        [
+          {
+            "node": "Deliver on the low rung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

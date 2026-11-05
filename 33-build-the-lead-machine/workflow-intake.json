@@ -1,0 +1,248 @@
+{
+  "name": "Lead Machine 01 - Intake",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Enquiry form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "path": "lead-machine",
+        "formTitle": "BrightSmile Dental enquiry",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Message",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Normalise and key",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const d = $input.first().json;\nconst crypto = require('crypto');\nconst name = (d.Name || '').trim();\nconst email = (d.Email || '').trim().toLowerCase();\nconst messageId = 'form-' + Date.now();\nconst key = crypto.createHash('sha256')\n  .update(name.toLowerCase() + '|' + email + '|' + messageId)\n  .digest('hex').slice(0, 16);\nreturn [{ json: { name: name, email: email, channel: 'website form', message: d.Message || '', dedupe_key: key } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Classify (simulated)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Simulated classifier (Lesson 24's contract, rule-based stand-in).\n// Swap for the Text Classifier node in production; the labels and\n// the fallback do not change.\nconst msg = ($input.first().json.message || '').toLowerCase();\nlet category = 'other';\nif (/(unacceptable|disgrace|manager|lawyer|refund)/.test(msg)) category = 'complaint';\nelse if (/(book|appointment|emergency|pain|reschedule)/.test(msg)) category = 'booking';\nelse if (/(price|cost|much|offer)/.test(msg)) category = 'pricing';\nreturn [{ json: { ...$input.first().json, category: category } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Is it a complaint?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "complaint",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "name": "Escalate to a human",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return $input.all().map(i => ({ json: { ...i.json, status: 'closed', band: 'human', score: 0, updated: new Date().toISOString().slice(0, 10), note: 'Complaint: a named human calls back today.' } }));"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "name": "Score the lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// The Lesson 32 rubric, implemented exactly as written in RUBRIC.md.\n// Complaints never reach this node: intake routes them to a human.\nconst d = $input.first().json;\nlet score = 0;\nif (d.category === 'booking') score += 40;\nelse if (d.category === 'pricing') score += 25;\nconst msg = (d.message || '').toLowerCase();\nif (/(pain|emergency|broken|swollen)/.test(msg)) score += 25;\nif (/(today|tomorrow|monday|tuesday|wednesday|thursday|friday)/.test(msg)) score += 15;\nif (d.email) score += 10;\nif (d.channel && d.channel !== 'unknown') score += 10;\nconst band = score >= 65 ? 'hot' : score >= 40 ? 'warm' : 'nurture';\nreturn [{ json: { ...d, score: score, band: band,\n  status: 'new', updated: new Date().toISOString().slice(0, 10) } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000007",
+      "name": "Store the lead",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        320
+      ],
+      "parameters": {
+        "operation": "insert",
+        "dataTableId": "SELECT_YOUR_LEADS_TABLE",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "channel": "={{ $json.channel }}",
+            "message": "={{ $json.message }}",
+            "category": "={{ $json.category }}",
+            "score": "={{ $json.score }}",
+            "band": "={{ $json.band }}",
+            "status": "={{ $json.status }}",
+            "dedupe_key": "={{ $json.dedupe_key }}",
+            "updated": "={{ $json.updated }}"
+          }
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000900",
+      "name": "Sticky Note 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        90
+      ],
+      "parameters": {
+        "content": "## Non-negotiables in this file\nComplaints exit to a human before scoring. The dedupe register check from Lesson 19 belongs in the webhook door twin of this intake; the data model carries the contract.",
+        "height": 180,
+        "width": 420,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Enquiry form": {
+      "main": [
+        [
+          {
+            "node": "Normalise and key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise and key": {
+      "main": [
+        [
+          {
+            "node": "Classify (simulated)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify (simulated)": {
+      "main": [
+        [
+          {
+            "node": "Is it a complaint?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is it a complaint?": {
+      "main": [
+        [
+          {
+            "node": "Escalate to a human",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Score the lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalate to a human": {
+      "main": [
+        [
+          {
+            "node": "Store the lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score the lead": {
+      "main": [
+        [
+          {
+            "node": "Store the lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
