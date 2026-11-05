@@ -1,0 +1,154 @@
+{
+  "name": "Lesson 25a - Load clinic documents into the vector store",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Start (run manually)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Clinic documents",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [\n  { json: { source: 'prices.txt', text: 'Teeth whitening costs GBP 299 for a 60 minute session. A checkup costs GBP 45. Hygiene polish costs GBP 65.' } },\n  { json: { source: 'hours.txt', text: 'The clinic opens 8am to 6pm Monday to Friday. Emergency slots run Monday to Thursday mornings. The clinic is closed on Sundays.' } },\n  { json: { source: 'policies.txt', text: 'Cancellations need 24 hours notice. A missed appointment fee of GBP 25 applies.' } } ];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "In Memory Vector Store (insert)",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.1,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": "brightsmile_docs"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "metadata": {
+          "metadataValues": [
+            {
+              "name": "source",
+              "value": "={{ $json.source }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "name": "Recursive Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "chunkSize": 500,
+        "chunkOverlap": 50
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "name": "Embeddings Ollama",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        320
+      ],
+      "parameters": {
+        "model": "nomic-embed-text",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Start (run manually)": {
+      "main": [
+        [
+          {
+            "node": "Clinic documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clinic documents": {
+      "main": [
+        [
+          {
+            "node": "In Memory Vector Store (insert)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "In Memory Vector Store (insert)",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "In Memory Vector Store (insert)",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

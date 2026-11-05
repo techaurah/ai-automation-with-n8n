@@ -1,0 +1,151 @@
+{
+  "name": "Lesson 25b - Ask the clinic knowledge agent",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "options": {
+          "systemMessage": "You are BrightSmile Dental's front desk agent. For any question about prices, hours, or policies, search the clinic_knowledge tool first and answer from what it returns, naming the source document. If it returns nothing relevant, say the team will confirm; never invent a policy."
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Ollama Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "model": "llama3.1",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Clinic knowledge tool",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "name": "clinic_knowledge",
+        "description": "Search BrightSmile's own documents for prices, hours, and policies. Use before answering factual questions."
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "name": "In Memory Vector Store (retrieve)",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "mode": "retrieve",
+        "memoryKey": "brightsmile_docs",
+        "topK": 3
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "name": "Embeddings Ollama (ask)",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        320
+      ],
+      "parameters": {
+        "model": "nomic-embed-text",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clinic knowledge tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama (ask)": {
+      "ai_embedding": [
+        [
+          {
+            "node": "In Memory Vector Store (retrieve)",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "In Memory Vector Store (retrieve)": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Clinic knowledge tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
