@@ -1,0 +1,94 @@
+{
+  "name": "Lesson 30 - Webhook behind header auth",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Webhook (authenticated)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "path": "partner-leads",
+        "httpMethod": "POST",
+        "authentication": "headerAuth",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Validate the payload shape",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const b = $input.first().json.body || {};\nif (!b.email || !b.message_id) {\n  throw new Error('Rejected: payload missing required fields');\n}\nreturn [{ json: { accepted: true, email: b.email } }];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000900",
+      "name": "Sticky Note 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        90
+      ],
+      "parameters": {
+        "content": "## Two layers, on purpose\nHeader auth proves the caller holds the credential; the shape check proves the payload deserves processing. Neither replaces the other.",
+        "height": 180,
+        "width": 420,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Webhook (authenticated)": {
+      "main": [
+        [
+          {
+            "node": "Validate the payload shape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate the payload shape": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
