@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+<rect width="1200" height="420" fill="#FFFFFF"/>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0891B2"/></marker></defs>
+<text x="40" y="52" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="30" font-weight="700" fill="#0B1F4A">Course map: 35 lessons, one arc</text>
+<text x="40" y="82" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#475569">Every module automates one more piece of BrightSmile Dental. The capstone assembles them.</text>
+<rect x="40" y="98" width="90" height="5" fill="#0891B2"/>
+<rect x="40" y="140" width="250" height="90" rx="12" fill="#E0F2FE"/>
+<text x="165.0" y="181.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#0B1F4A">M0 Start here</text>
+<text x="165.0" y="205.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#33506E">Lessons 00 to 01</text>
+<line x1="294" y1="185" x2="326" y2="185" stroke="#0891B2" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="330" y="140" width="250" height="90" rx="12" fill="#E0F2FE"/>
+<text x="455.0" y="181.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#0B1F4A">M1 Foundations</text>
+<text x="455.0" y="205.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#33506E">Lessons 02 to 06</text>
+<line x1="584" y1="185" x2="616" y2="185" stroke="#0891B2" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="620" y="140" width="250" height="90" rx="12" fill="#E0F2FE"/>
+<text x="745.0" y="181.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#0B1F4A">M2 Core nodes</text>
+<text x="745.0" y="205.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#33506E">Lessons 07 to 12</text>
+<line x1="874" y1="185" x2="906" y2="185" stroke="#0891B2" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="910" y="140" width="250" height="90" rx="12" fill="#E0F2FE"/>
+<text x="1035.0" y="181.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#0B1F4A">M3 Real services</text>
+<text x="1035.0" y="205.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#33506E">Lessons 13 to 16</text>
+<rect x="40" y="260" width="250" height="90" rx="12" fill="#E0F2FE"/>
+<text x="165.0" y="301.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#0B1F4A">M4 Reliability</text>
+<text x="165.0" y="325.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#33506E">Lessons 17 to 19</text>
+<line x1="294" y1="305" x2="326" y2="305" stroke="#0891B2" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="330" y="260" width="250" height="90" rx="12" fill="#E0F2FE"/>
+<text x="455.0" y="301.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#0B1F4A">M5 AI in n8n</text>
+<text x="455.0" y="325.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#33506E">Lessons 20 to 27</text>
+<line x1="584" y1="305" x2="616" y2="305" stroke="#0891B2" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="620" y="260" width="250" height="90" rx="12" fill="#E0F2FE"/>
+<text x="745.0" y="301.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#0B1F4A">M6 Production</text>
+<text x="745.0" y="325.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#33506E">Lessons 28 to 31</text>
+<line x1="874" y1="305" x2="906" y2="305" stroke="#0891B2" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="910" y="260" width="250" height="90" rx="12" fill="#E0F2FE"/>
+<text x="1035.0" y="301.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#0B1F4A">M7 Capstone</text>
+<text x="1035.0" y="325.0" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#33506E">Lessons 32 to 34</text>
+<text x="40" y="402" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#475569">The Lead Machine (capstone) reuses every module before it. Nothing is throwaway.</text>
+</svg>
