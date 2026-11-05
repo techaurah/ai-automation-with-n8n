@@ -1,0 +1,63 @@
+{
+  "name": "Lesson 06c - Form trigger (enquiry form)",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Enquiry form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "path": "bright-smile-enquiry",
+        "formTitle": "BrightSmile Dental enquiry",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Message",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Normalise the form",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const d = $input.first().json;\nreturn [{ json: { kind: 'enquiry', name: d.Name || 'unknown', message: d.Message || '', received: new Date().toISOString() } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Enquiry form": {
+      "main": [
+        [
+          {
+            "node": "Normalise the form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
