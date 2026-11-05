@@ -1,0 +1,50 @@
+{
+  "name": "Lesson 26b - A workflow exposed as an MCP server",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "path": "brightsmile-tools",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Opening hours tool",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Nodes after the MCP Server Trigger are exposed as tools;\n// this one's name and the workflow's tool description are\n// what a calling agent sees.\nconst day = ($input.first().json.weekday || '').toLowerCase();\nconst hours = { monday: '8am to 6pm', tuesday: '8am to 6pm', wednesday: '8am to 6pm', thursday: '8am to 6pm', friday: '8am to 6pm', saturday: 'closed', sunday: 'closed' };\nreturn [{ json: { weekday: day, hours: hours[day] || 'unknown day' } }];"
+      }
+    }
+  ],
+  "connections": {
+    "MCP Server Trigger": {
+      "main": [
+        [
+          {
+            "node": "Opening hours tool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
