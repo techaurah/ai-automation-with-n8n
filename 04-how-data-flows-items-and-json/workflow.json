@@ -1,0 +1,97 @@
+{
+  "name": "Lesson 04 - Items and JSON",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Start (run manually)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "Raw enquiries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [\n  { json: { name: '  ayesha khan ', channel: 'Website Form', message: 'Tooth pain, need an emergency appointment' } },\n  { json: { name: 'Tom Lee', channel: 'INSTAGRAM', message: 'How much is teeth whitening?' } },\n  { json: { name: 'Maria Gomez', channel: 'email', message: 'Just researching for now, thanks' } } ];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Clean each item",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Runs once per item in this mode: $json is the current item.\nconst name = $json.name.trim();\nreturn { json: { first_name: name.split(' ')[0], name: name, channel: $json.channel.toLowerCase(), message: $json.message, word_count: $json.message.split(' ').length } };"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Summarise",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all().map(i => i.json);\nreturn [{ json: { count: items.length, channels: [...new Set(items.map(i => i.channel))].sort() } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Start (run manually)": {
+      "main": [
+        [
+          {
+            "node": "Raw enquiries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Raw enquiries": {
+      "main": [
+        [
+          {
+            "node": "Clean each item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean each item": {
+      "main": [
+        [
+          {
+            "node": "Summarise",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
